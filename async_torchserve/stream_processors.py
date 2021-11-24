@@ -11,7 +11,7 @@ from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.errors import TopicAlreadyExistsError, UnknownTopicOrPartitionError
 
 from subprocess import run
-from google.cloud import pubsub
+from google.cloud import pubsub_v1
 from google.cloud.pubsub_v1.subscriber.message import Message
 
 
@@ -132,11 +132,11 @@ class PubSub(BaseStreamProcessor):
             run(["gcloud", "pubsub", "topics", "delete", topic], check=True)
     
     async def start_producer(self, loop: asyncio.AbstractEventLoop, topic: str) -> None:
-        self.publisher = pubsub.PublisherClient()
+        self.publisher = pubsub_v1.PublisherClient()
 
     async def start_consumer(self, loop: asyncio.AbstractEventLoop, topic: str) -> None:
-        self.subscriber = pubsub.SubscriberClient()
-        self.subscription_path = self.subscriber.subscription_path(
+        self.subscriber = pubsub_v1.SubscriberClient()
+        self.sub_path = self.subscriber.subscription_path(
             project=self.project_id, subscription=topic+self.subscription_suffix
         )
 
@@ -149,13 +149,20 @@ class PubSub(BaseStreamProcessor):
     async def pull(self, callback: Callable) -> None:
         if self.subscriber is None:
             log.error("Subscriber has not been started yet.")
-        def wrapper_callback(message: Message, callback=callback) -> None:
-            callback(message.data)
-            message.ack()
-        future = self.subscriber.subscribe(
-            self.subscription_path, callback=wrapper_callback
-        )
-        future.result()
+        async def wrapper_callback(message: Message, callback=callback) -> None:
+            await callback(message.message.data)
+        while True:
+            response = self.subscriber.pull(
+                request={"max_messages": 1, "subscription": self.sub_path}
+            )
+            if response.received_messages:
+                ack_ids = []
+                for msg in response.received_messages:
+                    await wrapper_callback(msg)
+                    ack_ids.append(msg.ack_id)
+                self.subscriber.acknowledge(
+                    request={"ack_ids": ack_ids, "subscription": self.sub_path}
+                )
 
     async def stop(self) -> None:
         if self.subscriber: self.subscriber.close()
