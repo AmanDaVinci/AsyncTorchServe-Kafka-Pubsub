@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
-def main(config):
+def main(config: configparser.ConfigParser):
     stream_processor = load_stream_processor(config)
     log.info(f"Using {stream_processor.__class__.__name__} stream processor")
 
