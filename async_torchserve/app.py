@@ -23,6 +23,7 @@ def main(config: configparser.ConfigParser):
     for model_server in model_servers:
         loop.run_until_complete(model_server.start(loop))
     try:
+        log.info("Ready to serve predictions...")
         for model_server in model_servers:
             loop.run_until_complete(model_server.process())
     except KeyboardInterrupt:
