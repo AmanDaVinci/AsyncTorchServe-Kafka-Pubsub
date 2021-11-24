@@ -1,7 +1,8 @@
 import json
 import logging
-from typing import List
+import asyncio
 from image_classification.utils import import_predictor_class
+from async_torchserve.stream_processors import BaseStreamProcessor
 from async_torchserve.utils import get_producer_consumer_topics
 
 log = logging.getLogger(__name__)
@@ -9,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class ModelServer:
 
-    def __init__(self, model_package, stream_processor):
+    def __init__(self, model_package: str, stream_processor: BaseStreamProcessor):
         self.processor = stream_processor
         model_class = import_predictor_class(model_package)
         self.model = model_class()
@@ -18,7 +19,7 @@ class ModelServer:
         log.info(f"{self.model.name}: consuming data from topic {self.consumer_topic}")
         log.info(f"{self.model.name}: producing predictions to topic {self.producer_topic}")
     
-    async def start(self, loop):
+    async def start(self, loop: asyncio.AbstractEventLoop):
         log.info(f"{self.model.name}: starting producer and consumer")
         await self.processor.start_consumer(loop, self.consumer_topic)
         await self.processor.start_producer(loop, self.producer_topic)
