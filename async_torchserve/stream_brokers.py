@@ -6,8 +6,8 @@ import configparser
 from abc import ABC, abstractmethod
 from typing import Any, Callable, List
 
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, ConsumerRecord
 from kafka.admin import KafkaAdminClient, NewTopic
+from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 from kafka.errors import TopicAlreadyExistsError, UnknownTopicOrPartitionError
 
 from subprocess import run
@@ -18,7 +18,7 @@ from google.cloud.pubsub_v1.subscriber.message import Message
 log = logging.getLogger(__name__)
 
 
-class BaseStreamProcessor(ABC):
+class BaseStreamBroker(ABC):
 
     @abstractmethod
     def __init__(self, config: configparser.ConfigParser) -> None:
@@ -53,7 +53,7 @@ class BaseStreamProcessor(ABC):
         raise NotImplementedError
 
     
-class Kafka(BaseStreamProcessor):
+class Kafka(BaseStreamBroker):
 
     def __init__(self, config: configparser.ConfigParser) -> None:
         self.producer, self.consumer = None, None
@@ -105,7 +105,7 @@ class Kafka(BaseStreamProcessor):
         if self.producer:  await self.producer.stop()
 
 
-class PubSub(BaseStreamProcessor):
+class PubSub(BaseStreamBroker):
 
     def __init__(self, config: configparser.ConfigParser) -> None:
         self.publisher, self.subscriber = None, None

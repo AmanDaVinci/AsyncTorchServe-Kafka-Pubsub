@@ -1,24 +1,25 @@
-import argparse
 import asyncio
 import logging
+import argparse
 import configparser
 from async_torchserve.model_server import ModelServer
-from async_torchserve.utils import load_stream_processor
+from async_torchserve.utils import load_stream_broker
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
 def main(config: configparser.ConfigParser):
-    stream_processor = load_stream_processor(config)
-    log.info(f"Using {stream_processor.__class__.__name__} stream processor")
+    stream_broker = load_stream_broker(config)
+    log.info(f"Using {stream_broker.__class__.__name__} stream broker")
 
     loop = asyncio.get_event_loop()
     asyncio.set_event_loop(loop)
     model_servers = [
-        ModelServer(model_package, stream_processor) 
+        ModelServer(model_package, stream_broker) 
         for model_package in config["models"]
     ]
+
     log.info("Starting all model servers")
     for model_server in model_servers:
         loop.run_until_complete(model_server.start(loop))
