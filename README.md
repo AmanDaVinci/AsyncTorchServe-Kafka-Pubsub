@@ -3,6 +3,8 @@ Asynchronous PyTorch model serving
 on top of event streaming platforms 
 such as Apache Kafka or Google PubSub
 
+![Architecture Diagram](AsyncTorchServe.png)
+
 ## Usage Guide
 
 1. Git clone (or download and unpack) the repository
