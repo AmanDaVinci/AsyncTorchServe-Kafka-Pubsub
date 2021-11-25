@@ -1,0 +1,7 @@
+git+https://github.com/amandavinci/research#egg=image_classification
+aiokafka==0.5.2
+kafka-python==1.4.6
+contextlib2==0.5.5
+joblib==0.14.1
+schema==0.7.4
+google-cloud-pubsub==2.9.0
