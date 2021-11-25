@@ -4,10 +4,10 @@ import argparse
 import configparser
 from pathlib import Path
 from image_classification.datasets.fashion_mnist import FashionMNIST
-from async_torchserve.stream_processors import BaseStreamProcessor
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from async_torchserve.utils import load_stream_processor
+from async_torchserve.utils import load_stream_broker
+from async_torchserve.stream_brokers import BaseStreamBroker
 
 CONFIG_FILE = "config.ini"
 ENCODING = "latin-1"
@@ -15,9 +15,9 @@ ENCODING = "latin-1"
 
 async def push_interactively(loop: asyncio.AbstractEventLoop, 
                              dataset: FashionMNIST, 
-                             stream_processor: BaseStreamProcessor, 
+                             stream_broker: BaseStreamBroker, 
                              topic: str) -> None:
-    await stream_processor.start_producer(loop, topic)
+    await stream_broker.start_producer(loop, topic)
     try:
         images, labels = dataset.load_data()
         print(f"Enter an index from 0 to {len(dataset)-1} to send from dataset")
@@ -32,11 +32,11 @@ async def push_interactively(loop: asyncio.AbstractEventLoop,
                 "pillow_mode": image.mode,
                 "encoding": ENCODING,
             }
-            await stream_processor.push(data, topic)
+            await stream_broker.push(data, topic)
             print(f"Sent an image of {dataset.classes[label]} class")
     except KeyboardInterrupt:
         print("\nRegistered keyboard interrupt. Stopping.")
-        await stream_processor.stop()
+        await stream_broker.stop()
         return
 
 if __name__ == "__main__":
@@ -67,11 +67,11 @@ if __name__ == "__main__":
 
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(CONFIG_FILE)
-    stream_processor = load_stream_processor(config)
-    print(f"Using {stream_processor.__class__.__name__} stream processor")
+    stream_broker = load_stream_broker(config)
+    print(f"Using {stream_broker.__class__.__name__} stream broker")
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
-        push_interactively(loop, dataset, stream_processor, args.topic)
+        push_interactively(loop, dataset, stream_broker, args.topic)
     )
     loop.close()

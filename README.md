@@ -37,8 +37,8 @@ $ export PYTHONPATH=./
 6. Setup the configuration in `./config.ini`
 ```
 [options]
-stream_processor = Kafka
-; stream_processor = PubSub
+stream_broker = Kafka
+; stream_broker = PubSub
 
 [models] ; list of models to instantiate in the server
 image_classification
