@@ -29,12 +29,7 @@ $ python -m pip install --upgrade wheel
 $ pip install -r requirements.txt
 ```
 
-5. Add our package to Python's path
-```
-$ export PYTHONPATH=./
-```
-
-6. Setup the configuration in `./config.ini`
+5. Setup the configuration in `./config.ini`
 ```
 [options]
 stream_broker = Kafka
@@ -51,7 +46,7 @@ project = ; enter google cloud project
 account_keypath = ; enter path to the private key json
 ```
 
-7. For Apache Kafka, start the docker container:
+6. For Apache Kafka, start the docker container:
 ```
 $ docker-compose up
 ``` 
@@ -60,6 +55,11 @@ For Google PubSub,
 the Google Cloud SDK `gcloud` 
 and setup a Google Cloud project 
 with PubSub API enabled.
+
+7. Add our package to Python's path before running the following scripts
+```
+$ export PYTHONPATH=./
+```
 
 8. Create the streaming topics
 ```
