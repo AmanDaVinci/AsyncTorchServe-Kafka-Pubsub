@@ -69,9 +69,9 @@ $ python bin/topics.py --create
 $ python async_torchserve/app.py --config=config.ini
 ```
 
-10. Send some data to the input topic interactively
+10. Send downloaded FashionMNIST images to the input topic interactively
 ```
-$ python bin/push_data.py
+$ python bin/push_data.py --download
 ```
 
 11. Pull the streaming predictions from the output topic
