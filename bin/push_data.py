@@ -51,12 +51,18 @@ if __name__ == "__main__":
         default="data/FashionMNIST",
         type=str
     ) 
+    parser.add_argument(
+        "--download", 
+        dest="download",
+        action="store_true"
+    ) 
     args = parser.parse_args()
 
     data_dir = Path(args.data_directory)
     data_dir.mkdir(exist_ok=True, parents=True)
+    if args.download: print(f"Downloading data to {args.data_directory}")
     dataset = FashionMNIST(is_train=False, data_dir=data_dir, 
-                           download_data=False, transform=None)
+                           download_data=args.download, transform=None)
     print(f"Loaded data from {args.data_directory}")
 
     config = configparser.ConfigParser(allow_no_value=True)
